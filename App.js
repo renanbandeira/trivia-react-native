@@ -1,21 +1,26 @@
+import React, { Fragment, useState, useEffect } from 'react';
+import AppLoading from 'expo-app-loading';
+import * as Font from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import Routes from './screens/Routes'
 
 export default function App() {
+  const [isLoadingFont, setIsLoadingFont] = useState(true);
+  useEffect(() => {
+    async function fetchFont() {
+      await Font.loadAsync({
+       'kindergarten': require('./assets/fonts/kindergarten.ttf'),
+     });
+     setIsLoadingFont(false);
+    }
+    fetchFont();
+  }, []);
+  if (isLoadingFont) {
+    return <AppLoading />;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <Fragment>
+      <StatusBar barStyle="light-content" />
+      <Routes />
+    </Fragment>);
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
