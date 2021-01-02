@@ -10,6 +10,8 @@ import { Header } from '../../components'
 
 import { fetchQuestions } from '../../api';
 
+import { addPersonToRanking } from '../../storage';
+
 const QUESTION_THRESHOLD = 5;
 
 const animations = [ 'slideInLeft', 'slideInRight'];
@@ -44,9 +46,12 @@ export default function Game({ navigation }) {
     setIsNameInputVisible(true);
   }, []);
 
-  const submitDialog = useCallback((name) => {
+  const submitDialog = useCallback(async (name) => {
     if (name) {
+      await addPersonToRanking(name, currentQuestion);
       dismissDialog();
+    } else {
+      ToastAndroid.show(`Name is requiredd to Ranking!`, ToastAndroid.SHORT);
     }
   });
 
@@ -109,7 +114,7 @@ export default function Game({ navigation }) {
         </TouchableOpacity>
       </View>
       <DialogInput isDialogVisible={isNameInputVisible}
-            title={`Score: ${currentQuestion + 1}`}
+            title={`Score: ${currentQuestion}`}
             message="Type your name to be saved in Ranking"
             hintInput="Name"
             submitInput={ submitDialog }
