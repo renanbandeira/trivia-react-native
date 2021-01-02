@@ -7,9 +7,12 @@ import styles from './styles';
 import { Header } from '../../components'
 
 import { fetchRanking, clearRanking } from '../../storage';
+import { initTapAudio } from '../../utils/sound';
 
 export default function Ranking({ navigation }) {
   const [ranking, setRankingData] = useState([]);
+  const [sound, setSound] = useState();
+  const { playSound } = initTapAudio(setSound, sound, useEffect);
   useEffect(() => {
     const fetchRankingData = async () => {
       const rankingData = await fetchRanking();
@@ -21,7 +24,13 @@ export default function Ranking({ navigation }) {
     await clearRanking();
     navigation.goBack();
   }
-  const confirmClear = () => Alert.alert('Clear Ranking', 'Are you sure you want to clear the ranking records?',
+  const goBack = async () => {
+    await playSound();
+    navigation.goBack();
+  }
+  const confirmClear = async () => {
+    await playSound();
+    Alert.alert('Clear Ranking', 'Are you sure you want to clear the ranking records?',
     [{
       text: 'Yes',
       onPress: clearRankingAndGoBack
@@ -29,6 +38,7 @@ export default function Ranking({ navigation }) {
     {
       text: 'No'
     }], { cancelable: true });
+  }
   return (
     <View style={styles.container}>
       <Header />
@@ -50,7 +60,7 @@ export default function Ranking({ navigation }) {
         </ScrollView>
       </SafeAreaView>
       <View style={styles.bottomContainer}>
-        <TouchableOpacity onPress={navigation.goBack}>
+        <TouchableOpacity onPress={goBack}>
           <Text style={styles.backButton}>Go back</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={confirmClear}>

@@ -11,6 +11,7 @@ import { Header } from '../../components'
 import { fetchQuestions } from '../../api';
 
 import { addPersonToRanking } from '../../storage';
+import { initWinAudio, initLoseAudio } from '../../utils/sound';
 
 const QUESTION_THRESHOLD = 5;
 
@@ -21,6 +22,10 @@ export default function Game({ navigation }) {
   const [isNameInputVisible, setIsNameInputVisible] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [winSound, setWinSound] = useState();
+  const [loseSound, setLoseSound] = useState();
+  const { playSound: playWinSound } = initWinAudio(setWinSound, winSound, useEffect);
+  const { playSound: playLoseSound } = initLoseAudio(setLoseSound, loseSound, useEffect);
   useEffect(() => {
     if (currentQuestion === 0 || currentQuestion === questions.length - QUESTION_THRESHOLD ) {
       const fetchData = async () => {
@@ -55,12 +60,14 @@ export default function Game({ navigation }) {
     }
   });
 
-  const onAnswerSelected = useMemo(() => questions.length && questions.length > currentQuestion ? questions[currentQuestion].answers.map((answer) => () => {
+  const onAnswerSelected = useMemo(() => questions.length && questions.length > currentQuestion ? questions[currentQuestion].answers.map((answer) => async () => {
     if (questions[currentQuestion].correctAnswer === answer) {
       ToastAndroid.show(`Correct Answer!`, ToastAndroid.SHORT);
+      await playWinSound();
       setCurrentQuestion(currentQuestion + 1);
     } else {
       ToastAndroid.show(`Wrong Answer!`, ToastAndroid.SHORT);
+      await playLoseSound();
       showNameInputDialog();
     }
   }) : [], [questions, currentQuestion]);
